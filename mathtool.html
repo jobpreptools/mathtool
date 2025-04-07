@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arithmetic Practice</title>
+</head>
+<style>
+    body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align to top */
+    min-height: 100vh;
+    background-color: #f4f4f4;
+    margin-top: 20px; /* Add some margin at the top */
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+}
+
+h1, h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* --- Setup Screen --- */
+#setup-screen .options-group {
+    margin-bottom: 20px;
+    text-align: left; /* Align labels and inputs left */
+}
+
+#setup-screen label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+#setup-screen input[type="number"],
+#setup-screen input[type="checkbox"] {
+    margin-right: 5px;
+}
+#setup-screen input[type="number"]{
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 60px; /* Adjust width as needed */
+}
+
+#setup-screen .checkbox-group {
+    display: flex;
+    gap: 15px; /* Space between checkboxes */
+    align-items: center;
+}
+#setup-screen .checkbox-group label {
+     margin-bottom: 0; /* Override block default */
+     font-weight: normal;
+}
+
+
+#start-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#start-button:hover {
+    background-color: #0056b3;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+
+/* --- Quiz Screen --- */
+#quiz-screen {
+    border: 1px solid #eee;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #444;
+}
+
+#question-area #question-text {
+    font-size: 1.8em; /* Make question bigger */
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: bold;
+}
+
+#question-area input[type="number"] {
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1.1em;
+    width: 150px; /* Adjust as needed */
+}
+
+#submit-answer {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+#submit-answer:hover {
+    background-color: #218838;
+}
+
+#feedback-message {
+    margin-top: 15px;
+    font-weight: bold;
+    min-height: 1.2em; /* Reserve space */
+}
+#feedback-message.correct {
+    color: green;
+}
+#feedback-message.incorrect {
+    color: red;
+}
+#feedback-message.timeout {
+    color: orange;
+}
+
+/* --- Results Screen --- */
+#results-screen {
+     border: 1px solid #eee;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+#final-score {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+#restart-button {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#restart-button:hover {
+    background-color: #117a8b;
+}
+</style>
+<body>
+    <div class="container">
+        <h1>Arithmetic Practice</h1>
+
+        <div id="setup-screen">
+            <h2>Setup Your Practice Session</h2>
+
+            <div class="options-group">
+                <label>Select Operations:</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="op-add" value="+"> <label for="op-add">+</label>
+                    <input type="checkbox" id="op-subtract" value="-"> <label for="op-subtract">-</label>
+                    <input type="checkbox" id="op-multiply" value="*"> <label for="op-multiply">*</label>
+                    <input type="checkbox" id="op-divide" value="/"> <label for="op-divide">/</label>
+                </div>
+                 <p id="op-error" class="error-message" style="display: none;">Please select at least one operation.</p>
+            </div>
+
+            <div class="options-group">
+                <label for="num-digits">Number of Digits (1-6):</label>
+                <input type="number" id="num-digits" min="1" max="6" value="2">
+                <p id="digit-error" class="error-message" style="display: none;">Please enter a number between 1 and 6.</p>
+            </div>
+
+            <div class="options-group">
+                <label for="num-questions">Number of Questions (1-50):</label>
+                <input type="number" id="num-questions" min="1" max="50" value="10">
+                 <p id="question-error" class="error-message" style="display: none;">Please enter a number between 1 and 50.</p>
+            </div>
+
+            <button id="start-button">Start Practice</button>
+        </div>
+
+        <div id="quiz-screen" style="display: none;">
+            <div class="quiz-header">
+                <span id="score-display">Score: 0</span>
+                <span id="timer-display">Time: 20s</span>
+            </div>
+            <div id="question-area">
+                <p id="question-text">Question goes here...</p>
+                <input type="number" id="answer-input" placeholder="Your Answer">
+                <button id="submit-answer">Submit</button>
+            </div>
+             <p id="feedback-message"></p> </div>
+
+         <div id="results-screen" style="display: none;">
+            <h2>Practice Complete!</h2>
+            <p id="final-score">Your final score is: 0 / 0</p>
+            <button id="restart-button">Practice Again</button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM Elements ---
+    const setupScreen = document.getElementById('setup-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultsScreen = document.getElementById('results-screen');
+
+    // Setup Elements
+    const opCheckboxes = document.querySelectorAll('#setup-screen input[type="checkbox"]');
+    const numDigitsInput = document.getElementById('num-digits');
+    const numQuestionsInput = document.getElementById('num-questions');
+    const startButton = document.getElementById('start-button');
+    const opError = document.getElementById('op-error');
+    const digitError = document.getElementById('digit-error');
+    const questionError = document.getElementById('question-error');
+
+
+    // Quiz Elements
+    const scoreDisplay = document.getElementById('score-display');
+    const timerDisplay = document.getElementById('timer-display');
+    const questionText = document.getElementById('question-text');
+    const answerInput = document.getElementById('answer-input');
+    const submitButton = document.getElementById('submit-answer');
+    const feedbackMessage = document.getElementById('feedback-message');
+
+
+    // Results Elements
+    const finalScoreDisplay = document.getElementById('final-score');
+    const restartButton = document.getElementById('restart-button');
+
+    // --- Game State ---
+    let selectedOps = [];
+    let numDigits = 2;
+    let totalQuestions = 10;
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let timeLeft = 20;
+    let currentCorrectAnswer;
+    let questionTimeout; // To prevent submitting after timeout triggers next question
+
+    // --- Functions ---
+
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateRandomNumber(digits) {
+        const min = Math.pow(10, digits - 1);
+        const max = Math.pow(10, digits) - 1;
+        return getRandomInt(min, max);
+    }
+
+    function generateQuestion() {
+        const operation = selectedOps[getRandomInt(0, selectedOps.length - 1)];
+        let num1 = generateRandomNumber(numDigits);
+        let num2 = generateRandomNumber(numDigits);
+        let questionString = '';
+        let answer;
+
+        switch (operation) {
+            case '+':
+                answer = num1 + num2;
+                questionString = `${num1} + ${num2} = ?`;
+                break;
+            case '-':
+                // Ensure non-negative result for simplicity
+                if (num1 < num2) {
+                    [num1, num2] = [num2, num1]; // Swap them
+                }
+                answer = num1 - num2;
+                questionString = `${num1} - ${num2} = ?`;
+                break;
+            case '*':
+                answer = num1 * num2;
+                questionString = `${num1} × ${num2} = ?`; // Using multiplication sign
+                break;
+            case '/':
+                // Ensure integer division and no division by zero
+                if (num2 === 0) num2 = 1; // Avoid division by zero
+                // Adjust num1 to make it divisible by num2
+                answer = getRandomInt(1, Math.floor(Math.pow(10, numDigits) / num2)); // Generate a reasonable quotient first
+                 if (answer === 0 && numDigits > 1) answer = 1; // Avoid result 0 unless 1 digit numbers
+                num1 = num2 * answer;
+                 // Regenerate if num1 exceeds digit limit (less likely with quotient generation)
+                if (num1 >= Math.pow(10, numDigits)) {
+                   return generateQuestion(); // Try again
+                }
+
+                questionString = `${num1} ÷ ${num2} = ?`; // Using division sign
+                break;
+        }
+
+        currentCorrectAnswer = answer;
+        questionText.textContent = questionString;
+        answerInput.value = ''; // Clear previous answer
+        answerInput.focus(); // Set focus to input
+        feedbackMessage.textContent = ''; // Clear feedback
+        feedbackMessage.className = ''; // Reset feedback class
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval); // Clear any existing timer
+        clearTimeout(questionTimeout); // Clear previous timeout handler
+        timeLeft = 20;
+        timerDisplay.textContent = `Time: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = `Time: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                handleTimeout();
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+         clearTimeout(questionTimeout);
+    }
+
+     function handleTimeout() {
+        stopTimer();
+        feedbackMessage.textContent = `Time's up! The answer was ${currentCorrectAnswer}.`;
+        feedbackMessage.className = 'timeout'; // Add class for styling
+        // Move to next question after a short delay to show the feedback
+         questionTimeout = setTimeout(nextQuestion, 1500); // 1.5 second delay
+    }
+
+    function checkAnswer() {
+        stopTimer();
+        const userAnswer = parseInt(answerInput.value, 10);
+
+        if (isNaN(userAnswer)) {
+             feedbackMessage.textContent = 'Please enter a number.';
+             feedbackMessage.className = 'incorrect';
+             // Don't proceed, let timer run out or user retry (or restart timer?)
+              // For simplicity, let's just show the message and do nothing else yet.
+              // Maybe restart timer for this question? Or just wait for submit again.
+              // Let's proceed to next question after feedback delay like timeout/correct/incorrect.
+              questionTimeout = setTimeout(nextQuestion, 1500);
+             return; // Exit early
+        }
+
+
+        if (userAnswer === currentCorrectAnswer) {
+            score++;
+            feedbackMessage.textContent = 'Correct!';
+            feedbackMessage.className = 'correct';
+        } else {
+            feedbackMessage.textContent = `Incorrect. The answer was ${currentCorrectAnswer}.`;
+            feedbackMessage.className = 'incorrect';
+        }
+        scoreDisplay.textContent = `Score: ${score}`;
+
+        // Move to next question after a short delay
+       questionTimeout = setTimeout(nextQuestion, 1500); // 1.5 second delay
+    }
+
+    function nextQuestion() {
+         clearTimeout(questionTimeout); // Prevent duplicate calls if submit and timeout overlap
+        currentQuestionIndex++;
+        if (currentQuestionIndex < totalQuestions) {
+            generateQuestion();
+            startTimer();
+        } else {
+            endGame();
+        }
+    }
+
+    function startGame() {
+        // --- Validation ---
+        selectedOps = Array.from(opCheckboxes)
+                           .filter(cb => cb.checked)
+                           .map(cb => cb.value);
+
+        numDigits = parseInt(numDigitsInput.value, 10);
+        totalQuestions = parseInt(numQuestionsInput.value, 10);
+
+        let isValid = true;
+        opError.style.display = 'none';
+        digitError.style.display = 'none';
+        questionError.style.display = 'none';
+
+
+        if (selectedOps.length === 0) {
+            opError.style.display = 'block';
+            isValid = false;
+        }
+         if (isNaN(numDigits) || numDigits < 1 || numDigits > 6) {
+            digitError.style.display = 'block';
+            isValid = false;
+        }
+        if (isNaN(totalQuestions) || totalQuestions < 1 || totalQuestions > 50) {
+             questionError.style.display = 'block';
+            isValid = false;
+        }
+
+        if (!isValid) return; // Stop if validation fails
+
+
+        // --- Initialization ---
+        currentQuestionIndex = 0;
+        score = 0;
+        scoreDisplay.textContent = `Score: ${score}`;
+        feedbackMessage.textContent = ''; // Clear feedback
+        feedbackMessage.className = ''; // Reset feedback class
+
+
+        setupScreen.style.display = 'none';
+        resultsScreen.style.display = 'none';
+        quizScreen.style.display = 'block';
+
+        generateQuestion();
+        startTimer();
+    }
+
+    function endGame() {
+        stopTimer();
+        quizScreen.style.display = 'none';
+        finalScoreDisplay.textContent = `Your final score is: ${score} / ${totalQuestions}`;
+        resultsScreen.style.display = 'block';
+    }
+
+    function resetGame() {
+         resultsScreen.style.display = 'none';
+         quizScreen.style.display = 'none';
+         setupScreen.style.display = 'block';
+          // Optional: Reset setup fields to defaults or last values
+        // numDigitsInput.value = 2;
+        // numQuestionsInput.value = 10;
+        // opCheckboxes.forEach(cb => cb.checked = false);
+    }
+
+    // --- Event Listeners ---
+    startButton.addEventListener('click', startGame);
+    submitButton.addEventListener('click', checkAnswer);
+    answerInput.addEventListener('keypress', (event) => {
+        // Allow submission on Enter key press
+        if (event.key === 'Enter') {
+             // Prevent default form submission if it were in a form
+            event.preventDefault();
+            // Check if button is visible and enabled (i.e., quiz is active)
+            if (quizScreen.style.display !== 'none') {
+                checkAnswer();
+            }
+        }
+    });
+     restartButton.addEventListener('click', resetGame);
+
+});
+    </script>
+</body>
+</html>
