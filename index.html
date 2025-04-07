@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Practice Tools</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 40px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .tool-button {
+            background-color: #3498db;
+            color: white;
+            padding: 30px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            text-decoration: none;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .tool-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .disabled-button {
+    background-color: #95a5a6 !important;
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.7;
+}
+    </style>
+</head>
+<body>
+    <h1>Math Practice Tools</h1>
+    
+    <div class="grid-container">
+        <a href="algebra.html" class="tool-button">Algebra Practice</a>
+        <!-- <span class="tool-button disabled-button">Geometry Problems</span>
+        <span class="tool-button disabled-button">Calculus Tools</span>
+        <span class="tool-button disabled-button">Statistics Calculator</span>
+        <span class="tool-button disabled-button">Arithmetic Drills</span>
+        <span class="tool-button disabled-button">Trigonometry Solver</span>
+        <span class="tool-button disabled-button">Graphing Tools</span>
+        <span class="tool-button disabled-button">Equation Solver</span> -->
+    </div>
+</body>
+</html>
