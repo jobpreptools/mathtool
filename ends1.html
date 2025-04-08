@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Practice (Ends in 1)</title>
+    
+</head>
+<style>
+    body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #333;
+}
+
+p {
+    color: #555;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #444;
+}
+
+input[type="number"] {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 80%; /* Adjust as needed */
+    box-sizing: border-box; /* Include padding in width */
+}
+
+button {
+    padding: 12px 25px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.hidden {
+    display: none;
+}
+
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    position: relative; /* Needed for absolute positioning of score if desired */
+}
+
+#score-display {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #28a745;
+    /* Optional: Position top-right within the quiz screen */
+    /* position: absolute; */
+    /* top: -20px; */
+    /* right: 0; */
+}
+
+#timer-display {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #dc3545;
+}
+
+.question-container {
+    margin-top: 20px;
+}
+
+#question-number {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+#question-text {
+    font-size: 1.5em; /* Make question bigger */
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+#answer-input {
+     width: 60%; /* Make answer input a bit smaller */
+     margin-right: 10px; /* Add space between input and button */
+}
+
+#submit-button {
+    padding: 10px 15px; /* Slightly smaller padding */
+}
+
+.feedback {
+    margin-top: 15px;
+    font-weight: bold;
+    min-height: 1.2em; /* Reserve space for feedback */
+}
+
+.feedback.correct {
+    color: green;
+}
+
+.feedback.incorrect {
+    color: red;
+}
+
+.error {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+#results-screen p {
+    font-size: 1.2em;
+    margin-bottom: 25px;
+}
+
+#play-again-button {
+    background-color: #28a745;
+}
+
+#play-again-button:hover {
+    background-color: #218838;
+}
+</style>
+<body>
+    <div class="container">
+        <h1>Multiplication Practice</h1>
+        <p>Practice multiplying two 2-digit numbers ending in 1.</p>
+
+        <div id="setup-screen">
+            <label for="num-questions">How many questions would you like to practice?</label>
+            <input type="number" id="num-questions" min="1" value="5">
+            <button id="start-button">Start Quiz</button>
+            <p id="setup-error" class="error"></p>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="quiz-header">
+                <div id="score-display">Score: 0</div>
+                <div id="timer-display">Time left: 20s</div>
+            </div>
+            <div class="question-container">
+                 <p id="question-number"></p>
+                 <p id="question-text"></p>
+                 <input type="number" id="answer-input" placeholder="Your answer">
+                 <button id="submit-button">Submit Answer</button>
+                 <p id="feedback" class="feedback"></p>
+            </div>
+        </div>
+
+        <div id="results-screen" class="hidden">
+            <h2>Quiz Finished!</h2>
+            <p id="final-score"></p>
+            <button id="play-again-button">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+const setupScreen = document.getElementById('setup-screen');
+const quizScreen = document.getElementById('quiz-screen');
+const resultsScreen = document.getElementById('results-screen');
+
+const numQuestionsInput = document.getElementById('num-questions');
+const startButton = document.getElementById('start-button');
+const setupError = document.getElementById('setup-error');
+
+const scoreDisplay = document.getElementById('score-display');
+const timerDisplay = document.getElementById('timer-display');
+const questionNumberDisplay = document.getElementById('question-number');
+const questionTextDisplay = document.getElementById('question-text');
+const answerInput = document.getElementById('answer-input');
+const submitButton = document.getElementById('submit-button');
+const feedbackDisplay = document.getElementById('feedback');
+
+const finalScoreDisplay = document.getElementById('final-score');
+const playAgainButton = document.getElementById('play-again-button');
+
+// --- Quiz State ---
+let totalQuestions = 0;
+let currentQuestionIndex = 0;
+let score = 0;
+let questions = []; // Array to hold { num1, num2, correctAnswer }
+let timerInterval = null;
+let timeLeft = 20; // Seconds per question
+
+// --- Functions ---
+
+// Generates a random 2-digit number ending in 1 (11, 21, ..., 91)
+function generateNumberEndingIn1() {
+    const tensDigit = Math.floor(Math.random() * 9) + 1; // 1 to 9
+    return tensDigit * 10 + 1;
+}
+
+// Generates a single question object
+function generateQuestion() {
+    const num1 = generateNumberEndingIn1();
+    const num2 = generateNumberEndingIn1();
+    const correctAnswer = num1 * num2;
+    return { num1, num2, correctAnswer };
+}
+
+// Starts the timer for the current question
+function startTimer() {
+    timeLeft = 20;
+    timerDisplay.textContent = `Time left: ${timeLeft}s`;
+    clearInterval(timerInterval); // Clear any existing timer
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Time left: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            handleAnswerSubmission(false, true); // Mark as incorrect due to timeout
+        }
+    }, 1000);
+}
+
+// Displays the current question
+function displayQuestion() {
+    if (currentQuestionIndex >= totalQuestions) {
+        showResults();
+        return;
+    }
+
+    const currentQuestion = questions[currentQuestionIndex];
+    questionNumberDisplay.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+    questionTextDisplay.textContent = `${currentQuestion.num1} x ${currentQuestion.num2} = ?`;
+    answerInput.value = ''; // Clear previous answer
+    feedbackDisplay.textContent = ''; // Clear previous feedback
+    feedbackDisplay.className = 'feedback'; // Reset feedback class
+    answerInput.disabled = false;
+    submitButton.disabled = false;
+    answerInput.focus(); // Focus on the input field
+    startTimer();
+}
+
+// Handles answer submission (called by button click or timer expiry)
+function handleAnswerSubmission(isCorrect, isTimeout = false) {
+    clearInterval(timerInterval); // Stop the timer
+    answerInput.disabled = true;
+    submitButton.disabled = true;
+
+    if (isTimeout) {
+        feedbackDisplay.textContent = `Time's up! The correct answer was ${questions[currentQuestionIndex].correctAnswer}.`;
+        feedbackDisplay.className = 'feedback incorrect';
+        // Score remains 0 (already handled by checking isCorrect)
+    } else if (isCorrect) {
+        score++;
+        feedbackDisplay.textContent = "Correct!";
+        feedbackDisplay.className = 'feedback correct';
+    } else {
+        feedbackDisplay.textContent = `Incorrect. The correct answer was ${questions[currentQuestionIndex].correctAnswer}.`;
+        feedbackDisplay.className = 'feedback incorrect';
+    }
+
+    scoreDisplay.textContent = `Score: ${score}`;
+    currentQuestionIndex++;
+
+    // Move to the next question after a short delay to show feedback
+    setTimeout(() => {
+        displayQuestion();
+    }, 1500); // 1.5 second delay
+}
+
+// Checks the submitted answer
+function checkAnswer() {
+    const userAnswer = parseInt(answerInput.value, 10);
+    const correctAnswer = questions[currentQuestionIndex].correctAnswer;
+
+    if (isNaN(userAnswer)) {
+        // Optional: Add feedback if input is not a number, but type="number" helps
+        feedbackDisplay.textContent = "Please enter a valid number.";
+        feedbackDisplay.className = 'feedback incorrect';
+        return; // Don't proceed if input is invalid
+    }
+
+    handleAnswerSubmission(userAnswer === correctAnswer);
+}
+
+
+// Shows the final results screen
+function showResults() {
+    quizScreen.classList.add('hidden');
+    resultsScreen.classList.remove('hidden');
+    finalScoreDisplay.textContent = `Your final score is ${score} out of ${totalQuestions}.`;
+}
+
+// Starts the quiz process
+function startQuiz() {
+    const num = parseInt(numQuestionsInput.value, 10);
+
+    if (isNaN(num) || num <= 0) {
+        setupError.textContent = "Please enter a valid number of questions (1 or more).";
+        return;
+    }
+    setupError.textContent = ""; // Clear any previous error
+
+    totalQuestions = num;
+    currentQuestionIndex = 0;
+    score = 0;
+    questions = []; // Reset questions array
+
+    // Generate all questions beforehand
+    for (let i = 0; i < totalQuestions; i++) {
+        questions.push(generateQuestion());
+    }
+
+    scoreDisplay.textContent = `Score: ${score}`; // Reset score display
+    setupScreen.classList.add('hidden');
+    resultsScreen.classList.add('hidden'); // Ensure results are hidden
+    quizScreen.classList.remove('hidden');
+
+    displayQuestion(); // Display the first question
+}
+
+// Resets the application to the setup screen
+function playAgain() {
+    resultsScreen.classList.add('hidden');
+    setupScreen.classList.remove('hidden');
+    numQuestionsInput.value = '5'; // Reset default value
+}
+
+
+// --- Event Listeners ---
+startButton.addEventListener('click', startQuiz);
+submitButton.addEventListener('click', checkAnswer);
+playAgainButton.addEventListener('click', playAgain);
+
+// Optional: Allow submitting with Enter key in the answer input
+answerInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent default form submission if it were in a form
+        if (!submitButton.disabled) { // Only submit if button is not disabled
+           checkAnswer();
+        }
+    }
+});
+    </script>
+</body>
+</html>
