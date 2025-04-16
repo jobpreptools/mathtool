@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Practice</title>
+    </head>
+    <style>
+        /* Add/Keep previous styles */
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px 0;
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 550px;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.settings {
+    margin-bottom: 15px;
+}
+
+.settings label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+#problem-type {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+#range-settings-area {
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background-color: #fafafa;
+}
+
+.range-settings {
+    display: none;
+    text-align: left;
+    padding: 10px 0;
+}
+
+.range-settings.active {
+    display: block;
+}
+
+.range-settings label {
+    display: inline-block;
+    width: 120px;
+    margin-bottom: 8px;
+    font-weight: normal;
+    font-size: 0.95em;
+    color: #444;
+}
+
+.range-settings input[type=number] {
+    width: 60px;
+    padding: 6px;
+    margin-right: 5px;
+    margin-left: 5px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.range-settings br {
+    margin-bottom: 5px;
+}
+
+#start-button {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    background-color: #28a745; /* Green */
+    border-color: #28a745;
+    margin-top: 10px; /* Add some space above */
+}
+#start-button:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+/* Styles for elements within the hidden practice area */
+#practice-area {
+    /* Styles specific to when the practice area is visible */
+}
+
+.problem-area {
+    margin: 25px 0;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #555;
+    padding: 15px;
+    background-color: #e9e9e9;
+    border-radius: 5px;
+    min-height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#problem-text {
+     font-family: monospace;
+}
+
+
+.answer-area {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.answer-area label {
+    font-weight: bold;
+}
+
+#user-answer {
+    padding: 10px;
+    font-size: 1em;
+    width: 80px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+
+button { /* Default button styles */
+    padding: 10px 15px;
+    font-size: 1em;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+
+.feedback-area {
+    margin-top: 15px;
+    min-height: 30px;
+    font-weight: bold;
+}
+
+.feedback-area .correct {
+    color: #28a745; /* Green */
+}
+
+.feedback-area .incorrect {
+    color: #dc3545; /* Red */
+}
+
+.score-area {
+    margin-top: 20px;
+    font-size: 1.1em;
+    color: #666;
+}
+
+.navigation {
+    margin-top: 20px;
+    display: flex; /* Align buttons side-by-side */
+    justify-content: center;
+    gap: 15px; /* Space between buttons */
+}
+
+#next-button {
+     background-color: #6c757d;
+}
+#next-button:hover {
+     background-color: #5a6268;
+}
+
+#reset-button {
+    background-color: #ffc107; /* Yellow/Orange */
+    color: #333;
+}
+#reset-button:hover {
+    background-color: #e0a800;
+}
+    </style>
+<body>
+    <div class="container">
+        <h1>Math Practice</h1>
+
+        <div id="config-section">
+            <div class="settings">
+                <label for="problem-type">Select Practice Type:</label>
+                <select id="problem-type">
+                    <option value="table" selected>Multiplication Table</option>
+                    <option value="square">Squares</option>
+                    <option value="cube">Cubes</option>
+                    <option value="power">Powers</option>
+                </select>
+            </div>
+
+            <div id="range-settings-area">
+                <div id="table-range-settings" class="range-settings active">
+                    <label>Num 1 Range:</label>
+                    <input type="number" id="table-num1-min" value="1" min="1"> to
+                    <input type="number" id="table-num1-max" value="12" min="1">
+                    <br>
+                    <label>Num 2 Range:</label>
+                    <input type="number" id="table-num2-min" value="1" min="1"> to
+                    <input type="number" id="table-num2-max" value="10" min="1">
+                </div>
+                <div id="square-range-settings" class="range-settings">
+                     <label>Base Range:</label>
+                     <input type="number" id="square-base-min" value="1" min="1"> to
+                     <input type="number" id="square-base-max" value="20" min="1">
+                 </div>
+                 <div id="cube-range-settings" class="range-settings">
+                     <label>Base Range:</label>
+                     <input type="number" id="cube-base-min" value="1" min="1"> to
+                     <input type="number" id="cube-base-max" value="10" min="1">
+                 </div>
+                 <div id="power-range-settings" class="range-settings">
+                      <label>Base Range:</label>
+                     <input type="number" id="power-base-min" value="1" min="1"> to
+                     <input type="number" id="power-base-max" value="10" min="1">
+                     <br>
+                     <label>Exponent Range:</label>
+                     <input type="number" id="power-exp-min" value="1" min="1"> to
+                     <input type="number" id="power-exp-max" value="5" min="1">
+                 </div>
+            </div>
+
+            <button id="start-button">Start Practice</button>
+        </div> <div id="practice-area" style="display: none;">
+            <div class="problem-area">
+                <span id="problem-text">Problem will appear here</span>
+            </div>
+
+            <div class="answer-area">
+                <label for="user-answer">Your Answer:</label>
+                <input type="number" id="user-answer" autocomplete="off">
+                <button id="submit-button">Check Answer</button>
+            </div>
+
+            <div class="feedback-area">
+                <p id="feedback-text"></p>
+            </div>
+
+            <div class="score-area">
+                <p>Score: <span id="correct-count">0</span> / <span id="total-count">0</span></p>
+            </div>
+
+             <div class="navigation">
+                 <button id="next-button" style="display: none;">Next Question</button>
+                 <button id="reset-button">Change Settings</button> </div>
+        </div> </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    // --- Get references to HTML elements ---
+    const configSection = document.getElementById('config-section');
+    const practiceArea = document.getElementById('practice-area');
+    const startButton = document.getElementById('start-button');
+    const resetButton = document.getElementById('reset-button'); // New button
+
+    const problemTypeSelect = document.getElementById('problem-type');
+    const problemTextElement = document.getElementById('problem-text');
+    const userAnswerInput = document.getElementById('user-answer');
+    const submitButton = document.getElementById('submit-button');
+    const nextButton = document.getElementById('next-button');
+    const feedbackTextElement = document.getElementById('feedback-text');
+    const correctCountElement = document.getElementById('correct-count');
+    const totalCountElement = document.getElementById('total-count');
+
+    // Range input elements (references remain the same)
+    const rangeSettingsDivs = document.querySelectorAll('.range-settings');
+    const rangeInputs = { /* ... range input references remain the same ... */
+        table: {
+            num1Min: document.getElementById('table-num1-min'),
+            num1Max: document.getElementById('table-num1-max'),
+            num2Min: document.getElementById('table-num2-min'),
+            num2Max: document.getElementById('table-num2-max')
+        },
+        square: {
+            baseMin: document.getElementById('square-base-min'),
+            baseMax: document.getElementById('square-base-max')
+        },
+        cube: {
+            baseMin: document.getElementById('cube-base-min'),
+            baseMax: document.getElementById('cube-base-max')
+        },
+        power: {
+            baseMin: document.getElementById('power-base-min'),
+            baseMax: document.getElementById('power-base-max'),
+            expMin: document.getElementById('power-exp-min'),
+            expMax: document.getElementById('power-exp-max')
+        }
+    };
+
+    // --- State variables ---
+    let currentCorrectAnswer = null;
+    let num1 = 0;
+    let num2 = 0;
+    let correctCount = 0;
+    let totalCount = 0;
+
+    // --- Helper Functions (getRandomInt, getValidatedRange) remain the same ---
+    function getRandomInt(min, max) {
+        if (min > max) { [min, max] = [max, min]; }
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getValidatedRange(minInput, maxInput) {
+        let min = parseInt(minInput.value, 10);
+        let max = parseInt(maxInput.value, 10);
+        if (isNaN(min) || min < parseInt(minInput.min || "1")) min = parseInt(minInput.min || "1");
+        if (isNaN(max) || max < min) max = min;
+        minInput.value = min; // Update UI
+        maxInput.value = max; // Update UI
+        return { min, max };
+    }
+
+    // --- Function to update visibility of range settings ---
+    function updateRangeVisibility() {
+        const selectedType = problemTypeSelect.value;
+        rangeSettingsDivs.forEach(div => {
+            if (div.id === `${selectedType}-range-settings`) {
+                div.classList.add('active');
+            } else {
+                div.classList.remove('active');
+            }
+        });
+         // Validate ranges immediately when type changes
+         validateCurrentRanges();
+    }
+
+     // --- Function to validate the currently visible ranges ---
+     function validateCurrentRanges() {
+        const currentType = problemTypeSelect.value;
+        if (!rangeInputs[currentType]) return; // Type not found
+
+        switch(currentType) {
+            case 'table':
+                getValidatedRange(rangeInputs.table.num1Min, rangeInputs.table.num1Max);
+                getValidatedRange(rangeInputs.table.num2Min, rangeInputs.table.num2Max);
+                break;
+            case 'square':
+                getValidatedRange(rangeInputs.square.baseMin, rangeInputs.square.baseMax);
+                break;
+            case 'cube':
+                getValidatedRange(rangeInputs.cube.baseMin, rangeInputs.cube.baseMax);
+                break;
+            case 'power':
+                getValidatedRange(rangeInputs.power.baseMin, rangeInputs.power.baseMax);
+                getValidatedRange(rangeInputs.power.expMin, rangeInputs.power.expMax);
+                break;
+        }
+    }
+
+
+    // --- Function to generate a new problem (called during practice) ---
+    function generateProblem() {
+        const problemType = problemTypeSelect.value; // Read the selected type
+        feedbackTextElement.textContent = '';
+        feedbackTextElement.className = '';
+        userAnswerInput.value = '';
+        userAnswerInput.disabled = false;
+        submitButton.disabled = false;
+        nextButton.style.display = 'none';
+
+        let range1, range2;
+
+        // Validate and get ranges *just before* generating
+        validateCurrentRanges();
+
+        try {
+            switch (problemType) {
+                case 'table':
+                    range1 = getValidatedRange(rangeInputs.table.num1Min, rangeInputs.table.num1Max);
+                    range2 = getValidatedRange(rangeInputs.table.num2Min, rangeInputs.table.num2Max);
+                    num1 = getRandomInt(range1.min, range1.max);
+                    num2 = getRandomInt(range2.min, range2.max);
+                    problemTextElement.textContent = `${num1} × ${num2} = ?`;
+                    currentCorrectAnswer = num1 * num2;
+                    break;
+                 case 'square':
+                    range1 = getValidatedRange(rangeInputs.square.baseMin, rangeInputs.square.baseMax);
+                    num1 = getRandomInt(range1.min, range1.max);
+                    problemTextElement.textContent = `${num1}² = ?`;
+                    currentCorrectAnswer = num1 * num1;
+                    break;
+                case 'cube':
+                     range1 = getValidatedRange(rangeInputs.cube.baseMin, rangeInputs.cube.baseMax);
+                    num1 = getRandomInt(range1.min, range1.max);
+                    problemTextElement.textContent = `${num1}³ = ?`;
+                    currentCorrectAnswer = num1 * num1 * num1;
+                    break;
+                case 'power':
+                    range1 = getValidatedRange(rangeInputs.power.baseMin, rangeInputs.power.baseMax);
+                    range2 = getValidatedRange(rangeInputs.power.expMin, rangeInputs.power.expMax);
+                    num1 = getRandomInt(range1.min, range1.max); // Base
+                    num2 = getRandomInt(range2.min, range2.max); // Exponent
+                    problemTextElement.textContent = `${num1}^${num2} = ?`;
+                    currentCorrectAnswer = Math.pow(num1, num2);
+                    if (!isFinite(currentCorrectAnswer)) {
+                         feedbackTextElement.textContent = `Result too large! Change settings & restart.`;
+                         feedbackTextElement.className = 'incorrect';
+                         submitButton.disabled = true;
+                         userAnswerInput.disabled = true;
+                         nextButton.style.display = 'none'; // Cannot proceed
+                         return;
+                    }
+                    break;
+            }
+        } catch (error) {
+            console.error("Error generating problem:", error);
+            problemTextElement.textContent = "Error!";
+            feedbackTextElement.textContent = "Problem generation error. Change settings & restart.";
+            feedbackTextElement.className = 'incorrect';
+            submitButton.disabled = true;
+            userAnswerInput.disabled = true;
+            return;
+        }
+
+        userAnswerInput.focus();
+    }
+
+    // --- Function to check the user's answer (remains mostly the same) ---
+    function checkAnswer() {
+        const userAnswer = parseInt(userAnswerInput.value, 10);
+
+        if (isNaN(userAnswer)) {
+            feedbackTextElement.textContent = 'Please enter a valid number!';
+            feedbackTextElement.className = 'incorrect';
+            return;
+        }
+
+        totalCount++;
+        userAnswerInput.disabled = true;
+        submitButton.disabled = true;
+
+        if (userAnswer === currentCorrectAnswer) {
+            correctCount++;
+            feedbackTextElement.textContent = 'Correct!';
+            feedbackTextElement.className = 'correct';
+        } else {
+            feedbackTextElement.textContent = `Incorrect. The answer was ${currentCorrectAnswer}.`;
+            feedbackTextElement.className = 'incorrect';
+        }
+
+        correctCountElement.textContent = correctCount;
+        totalCountElement.textContent = totalCount;
+        nextButton.style.display = 'inline-block'; // Show Next button
+        resetButton.style.display = 'inline-block'; // Ensure reset is visible
+        nextButton.focus();
+    }
+
+    // --- Function to start the practice session ---
+    function startPractice() {
+        // Validate ranges one last time before starting
+        validateCurrentRanges();
+
+        // Reset score
+        correctCount = 0;
+        totalCount = 0;
+        correctCountElement.textContent = correctCount;
+        totalCountElement.textContent = totalCount;
+
+        // Switch visibility
+        configSection.style.display = 'none';
+        practiceArea.style.display = 'block';
+
+        // Generate the first problem
+        generateProblem();
+    }
+
+    // --- Function to reset and go back to configuration ---
+    function resetPractice() {
+        // Switch visibility
+        practiceArea.style.display = 'none';
+        configSection.style.display = 'block';
+
+        // Clear practice state (optional, good practice)
+        problemTextElement.textContent = 'Problem will appear here';
+        feedbackTextElement.textContent = '';
+        userAnswerInput.value = '';
+    }
+
+
+    // --- Event Listeners ---
+    problemTypeSelect.addEventListener('change', updateRangeVisibility);
+
+    // Validate range inputs immediately on change, but don't generate problem
+    Object.values(rangeInputs).forEach(typeRanges => {
+        Object.values(typeRanges).forEach(input => {
+            input.addEventListener('change', () => {
+                 validateCurrentRanges(); // Validate whenever a range input changes
+            });
+             input.addEventListener('keypress', (event) => {
+                 if (event.key === 'Enter') {
+                     event.preventDefault();
+                     validateCurrentRanges(); // Validate on enter too
+                     // Maybe focus the start button?
+                     // startButton.focus();
+                 }
+              });
+        });
+    });
+
+    // Connect Buttons
+    startButton.addEventListener('click', startPractice);
+    resetButton.addEventListener('click', resetPractice);
+    submitButton.addEventListener('click', checkAnswer);
+    nextButton.addEventListener('click', generateProblem);
+
+    // Enter key listeners for answer input and next button
+    userAnswerInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter' && !submitButton.disabled) {
+             event.preventDefault();
+            checkAnswer();
+        }
+    });
+    nextButton.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+           event.preventDefault();
+           generateProblem();
+        }
+    });
+
+    // --- Initial Setup ---
+    updateRangeVisibility(); // Show the correct initial range settings
+    // DO NOT generate problem initially
+});
+    </script> </body>
+</html>
